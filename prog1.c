@@ -421,6 +421,7 @@ int main (int argc, char *argv[]){
 	char *word=NULL;
 	pthread_mutex_init(&lock, NULL);
 	counter=0;
+	int num_processors = sysconf(_SC_NPROCESSORS_ONLN);
 
 	FILE *fp1=fopen("passwords.txt","r");
 	while(fscanf(fp1,"%s",passwords[row])!=EOF)
@@ -440,7 +441,6 @@ int main (int argc, char *argv[]){
 		for(int i=0;i<length;i++)
 		{
 			word[i]=tmp[i];
-//			printf("%s\n",word);
 		}
 		word[length]='\0';
 		number_of_words++;
@@ -452,8 +452,6 @@ int main (int argc, char *argv[]){
 		{
 			dictionary=(char **)realloc(dictionary,number_of_words*sizeof(char *));
 			dictionary[number_of_words-1]=word;
-//			printf("%ld\n",number_of_words);
-//			printf("%s\n",word);
 
 		}
 	}
