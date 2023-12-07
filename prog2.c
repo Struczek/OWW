@@ -51,7 +51,7 @@ int main (int argc, char *argv[]){
 	char *word=NULL;
 	counter=0;
 
-	FILE *fp1=fopen("passwords.txt","r");
+	FILE *fp1=fopen("passwords_1.txt","r");
 	while(fscanf(fp1,"%s",passwords[row])!=EOF)
 	{
 		passwords[row][32]='\0';

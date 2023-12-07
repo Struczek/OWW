@@ -9,7 +9,14 @@
 #include <sys/types.h>
 
 
-#define NUM_THREADS 5
+
+int NUM_THREADS;
+
+typedef struct {
+   int repetitions;
+   int type;
+   int thread_number;
+} thread_data;
 
 char passwords[1000][33];
 pthread_mutex_t lock;
@@ -21,6 +28,7 @@ pthread_cond_t condvar;
 char *decodedpassword = NULL;
 int counter;
 long taskid;
+long task_number;
 
 void bytes2md5(const char *data, int len, char *md5buf) {
 	  EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
@@ -42,119 +50,8 @@ void sighup_handle(int sig)
 }
 
 
-void *prod1(void *t)
-{
-	char md5_1[33];
-	char md5_2[33];
-	char md5_3[33];
-	char md5_4[33];
-	char const *t1;
-	char const *t2;
-	int lower=0;
-	int length=0;
-	char digits[1000]; 
-	int digit = 0;
-	while (1)
-	{
 
-	
-		for(int i=0;i<password_counter;i++)
-		{
-
-			t1=passwords[i];
-			for(int j=0; j<words_counter;j++)
-			{
-
-				t2=dictionary[j];
-				length=strlen(t2);
-				char small_letters[100]; 
-				char small_letters_number[100];
-				char number_small_letter[100];
-				char number_small_letter_number[100]; 
-				strcpy(small_letters, t2);
-
-				for(int z = 0; z < length; z++) {
-					small_letters[z] = tolower((unsigned char) small_letters[z]);
-				}
-				sprintf(digits, "%d", digit);
-
-				strcpy(small_letters_number, small_letters);
-				strcpy(number_small_letter, digits);
-
-
-				strcat(small_letters_number, digits);
-				strcat(number_small_letter, small_letters);
-
-				strcpy(number_small_letter_number, number_small_letter);
-				strcat(number_small_letter_number, digits);
-
-
-				bytes2md5(small_letters,strlen(small_letters),md5_1);
-				bytes2md5(small_letters_number,strlen(small_letters_number),md5_2);
-				bytes2md5(number_small_letter,strlen(number_small_letter),md5_3);
-				bytes2md5(number_small_letter_number,strlen(number_small_letter_number),md5_4);
-
-
-				if((strcmp(t1,md5_1))==0 && passwords[i][0]!='#')
-				{
-					pthread_mutex_lock(&lock);
-					decodedpassword = malloc(strlen(small_letters)*sizeof(char));
-					strcpy(decodedpassword, small_letters);
-					counter++;
-					taskid=(long)t;
-					passwords[i][0]='#';
-					pthread_cond_signal(&condvar);
-					pthread_mutex_unlock(&lock);
-					
-					break;
-				}
-				else if ((strcmp(t1,md5_2))==0 && passwords[i][0]!='#')
-				{
-					pthread_mutex_lock(&lock);
-					decodedpassword=malloc(strlen(small_letters_number)*sizeof(char));
-					strcpy(decodedpassword, small_letters_number);
-					counter++;
-					taskid=(long)t;
-					passwords[i][0]='#';
-					pthread_cond_signal(&condvar);
-					pthread_mutex_unlock(&lock);
-					break;
-				}
-				else if ((strcmp(t1,md5_3))==0 && passwords[i][0]!='#')
-				{
-					pthread_mutex_lock(&lock);
-					decodedpassword=malloc(strlen(number_small_letter)*sizeof(char));
-					strcpy(decodedpassword, number_small_letter);
-					counter++;
-					taskid=(long)t;
-					passwords[i][0]='#';
-					pthread_cond_signal(&condvar);
-					pthread_mutex_unlock(&lock);
-					break;
-				}
-				else if ((strcmp(t1,md5_4))==0 && passwords[i][0]!='#')
-				{
-					pthread_mutex_lock(&lock);
-					decodedpassword=malloc(strlen(number_small_letter_number)*sizeof(char));
-					strcpy(decodedpassword, number_small_letter_number);
-					counter++;
-					taskid=(long)t;
-					passwords[i][0]='#';
-					pthread_cond_signal(&condvar);
-					pthread_mutex_unlock(&lock);
-					break;
-				}
-				
-
-			}
-		}
-		digit++;
-
-	}
-	pthread_exit(NULL);
-}
-
-void *prod2(void *t)
+void *prod(void *arg)
 {
     char md5_1[33];
 	char md5_2[33];
@@ -166,14 +63,15 @@ void *prod2(void *t)
 	int length=0;
 	char digits[1000]; 
 	int digit = 0;
+	thread_data* data = (thread_data*)arg;
+	int repetitions = data->repetitions;
+    int type = data->type;
+	int thread_number = data->thread_number;
 
 	while (1)
 	{
-
-	
-		for(int i=0;i<password_counter;i++)
+		for(int i=thread_number-1;i<password_counter;i=i+repetitions)
 		{
-
 			t1=passwords[i];
 			for(int j=0; j<words_counter;j++)
 			{
@@ -186,14 +84,24 @@ void *prod2(void *t)
 				char number_letter_number[100]; 
 				strcpy(letters, t2);
 
-				for(int z = 0; z < length; z++) {
-					if (z==0)
-					{
+				if(type == 1){
+					for(int z = 0; z < length; z++) {
 						letters[z] = toupper((unsigned char) letters[z]);
 					}
-					else
-					{
+				} else if (type == 2 ){
+					for(int z = 0; z < length; z++) {
 						letters[z] = tolower((unsigned char) letters[z]);
+					}
+				} else if (type == 3 ){
+					for(int z = 0; z < length; z++) {
+						if (z==0)
+						{
+							letters[z] = toupper((unsigned char) letters[z]);
+						}
+						else
+						{
+							letters[z] = tolower((unsigned char) letters[z]);
+						}
 					}
 				}
 				sprintf(digits, "%d", digit);
@@ -220,7 +128,8 @@ void *prod2(void *t)
 					decodedpassword=malloc(strlen(letters)*sizeof(char));
 					strcpy(decodedpassword, letters);
 					counter++;
-					taskid=(long)t;
+					taskid=type;
+					task_number=thread_number;
 					passwords[i][0]='#';
 					pthread_cond_signal(&condvar);
 					pthread_mutex_unlock(&lock);
@@ -232,7 +141,8 @@ void *prod2(void *t)
 					decodedpassword=malloc(strlen(letters_number)*sizeof(char));
 					strcpy(decodedpassword, letters_number);
 					counter++;
-					taskid=(long)t;
+					taskid=type;
+					task_number=thread_number;
 					passwords[i][0]='#';
 					pthread_cond_signal(&condvar);
 					pthread_mutex_unlock(&lock);
@@ -244,7 +154,8 @@ void *prod2(void *t)
 					decodedpassword=malloc(strlen(number_letter)*sizeof(char));
 					strcpy(decodedpassword, number_letter);
 					counter++;
-					taskid=(long)t;
+					taskid=type;
+					task_number=thread_number;
 					passwords[i][0]='#';
 					pthread_cond_signal(&condvar);
 					pthread_mutex_unlock(&lock);
@@ -256,7 +167,8 @@ void *prod2(void *t)
 					decodedpassword=malloc(strlen(number_letter_number)*sizeof(char));
 					strcpy(decodedpassword, number_letter_number);
 					counter++;
-					taskid=(long)t;
+					taskid=type;
+					task_number=thread_number;
 					passwords[i][0]='#';
 					pthread_cond_signal(&condvar);
 					pthread_mutex_unlock(&lock);
@@ -272,116 +184,6 @@ void *prod2(void *t)
 
         pthread_exit(NULL);
 
-}
-void *prod3(void *t)
-{
-    char md5_1[33];
-	char md5_2[33];
-	char md5_3[33];
-	char md5_4[33];
-	char const *t1;
-	char const *t2;
-	int lower=0;
-	int length=0;
-	char digits[1000]; 
-	int digit = 0;
-
-	while (1)
-	{
-	
-		for(int i=0;i<password_counter;i++)
-		{
-
-			t1=passwords[i];
-			for(int j=0; j<words_counter;j++)
-			{
-
-				t2=dictionary[j];
-				length=strlen(t2);
-				char upper_letters[100]; 
-				char upper_letters_number[100];
-				char number_upper_letter[100];
-				char number_upper_letter_number[100]; 
-				strcpy(upper_letters, t2);
-
-				for(int z = 0; z < length; z++) {
-					upper_letters[z] = toupper((unsigned char) upper_letters[z]);
-				}
-				sprintf(digits, "%d", digit);
-
-				strcpy(upper_letters_number, upper_letters);
-				strcpy(number_upper_letter, digits);
-
-
-				strcat(upper_letters_number, digits);
-				strcat(number_upper_letter, upper_letters);
-
-				strcpy(number_upper_letter_number, number_upper_letter);
-				strcat(number_upper_letter_number, digits);
-
-				bytes2md5(upper_letters,strlen(upper_letters),md5_1);
-				bytes2md5(upper_letters_number,strlen(upper_letters_number),md5_2);
-				bytes2md5(number_upper_letter,strlen(number_upper_letter),md5_3);
-				bytes2md5(number_upper_letter_number,strlen(number_upper_letter_number),md5_4);
-
-
-				if((strcmp(t1,md5_1))==0 && passwords[i][0]!='#')
-				{
-					pthread_mutex_lock(&lock);
-					decodedpassword = malloc(strlen(upper_letters)*sizeof(char));
-					strcpy(decodedpassword, upper_letters);
-					counter++;
-					taskid=(long)t;
-					passwords[i][0]='#';
-					pthread_cond_signal(&condvar);
-					pthread_mutex_unlock(&lock);
-					break;
-				}
-				else if ((strcmp(t1,md5_2))==0 && passwords[i][0]!='#')
-				{
-					pthread_mutex_lock(&lock);
-					decodedpassword=malloc(strlen(upper_letters_number)*sizeof(char));
-					strcpy(decodedpassword, upper_letters_number);
-					counter++;
-					taskid=(long)t;
-					passwords[i][0]='#';
-					pthread_cond_signal(&condvar);
-					pthread_mutex_unlock(&lock);
-					break;
-				}
-				else if ((strcmp(t1,md5_3))==0 && passwords[i][0]!='#')
-				{
-					pthread_mutex_lock(&lock);
-					decodedpassword=malloc(strlen(number_upper_letter)*sizeof(char));
-					strcpy(decodedpassword, number_upper_letter);
-					counter++;
-					taskid=(long)t;
-					passwords[i][0]='#';
-					pthread_cond_signal(&condvar);
-					pthread_mutex_unlock(&lock);
-					break;
-				}
-				else if ((strcmp(t1,md5_4))==0 && passwords[i][0]!='#')
-				{
-					pthread_mutex_lock(&lock);
-					decodedpassword=malloc(strlen(number_upper_letter_number)*sizeof(char));
-					strcpy(decodedpassword, number_upper_letter_number);
-					counter++;
-					taskid=(long)t;
-					passwords[i][0]='#';
-					pthread_cond_signal(&condvar);
-					pthread_mutex_unlock(&lock);
-					break;
-				}
-				
-
-			}
-		}
-		digit++;
-
-	}
-
-        pthread_exit(NULL);
 }
 
 
@@ -394,7 +196,7 @@ void *kon(void *t)
 	while(1)
 	{
 		pthread_cond_wait(&condvar, &lock);
-		printf("\nOtrzymano sygnal przez konsumenta.\nHaslo znalezione: %s.\nPrzez producenta nr:%ld\n\n",decodedpassword,taskid);
+		printf("\nOtrzymano sygnal przez konsumenta.\nHaslo znalezione: %s.\nPrzez producenta nr: %ld.%ld\n\n",decodedpassword,taskid,task_number);
 		if(decodedpassword != NULL) {
             free(decodedpassword);
             decodedpassword=NULL;
@@ -409,10 +211,10 @@ void *kon(void *t)
 
 
 int main (int argc, char *argv[]){
-
+	NUM_THREADS = sysconf(_SC_NPROCESSORS_ONLN)-2;
 	long t1=1,t2=2,t3=3,t4=4,t5=5;
 	int i,rc;
-	int row=0;
+	int row=0, type_1_counter=0, type_2_counter=0, type_3_counter=0;
 	pthread_attr_t attr;
 	pthread_t threads[NUM_THREADS];
 	size_t length;
@@ -422,8 +224,37 @@ int main (int argc, char *argv[]){
 	pthread_mutex_init(&lock, NULL);
 	counter=0;
 	int num_processors = sysconf(_SC_NPROCESSORS_ONLN);
+	thread_data threadData[NUM_THREADS];
+	for (int i = 0; i < NUM_THREADS-1; i++) {
+		if (i%3 == 0) {
+			threadData[i].type = 1;
+			threadData[i].thread_number = i/3+1;
 
-	FILE *fp1=fopen("passwords.txt","r");
+			threadData[i].repetitions = 0;
+			type_1_counter++;
+		} else if (i%3 == 1) {
+			threadData[i].type = 2;
+			threadData[i].thread_number = i/3+1;
+			threadData[i].repetitions = 0;
+			type_2_counter++;
+		} else if (i%3 == 2) {
+			threadData[i].type = 3;
+			threadData[i].thread_number = i/3+1;
+			threadData[i].repetitions = 0;
+			type_3_counter++;
+		}
+	}
+
+	for (int i = 0; i < NUM_THREADS-1; i++) {
+		if (i%3 == 0) {
+			threadData[i].repetitions = type_1_counter;
+		} else if (i%3 == 1) {
+			threadData[i].repetitions = type_2_counter;
+		} else if (i%3 == 2) {
+			threadData[i].repetitions = type_3_counter;
+		}
+	}
+	FILE *fp1=fopen("passwords_1.txt","r");
 	while(fscanf(fp1,"%s",passwords[row])!=EOF)
 	{
 		passwords[row][32]='\0';
@@ -462,10 +293,15 @@ int main (int argc, char *argv[]){
 
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-	pthread_create(&threads[0], &attr, prod1, (void *)t1);
- 	pthread_create(&threads[1], &attr, prod2, (void *)t2);
-  	pthread_create(&threads[2], &attr, prod3, (void *)t3);
-	pthread_create(&threads[3], &attr, kon, (void *)t5);
+	for (int i = 0; i < NUM_THREADS; i++) {
+		if (i == 0) {
+			pthread_create(&threads[i], &attr, kon, (void *)t1);
+		}
+		else {
+        	pthread_create(&threads[i], &attr, prod, &threadData[i-1]);
+		}	
+
+    }
 
 
 	for (i = 0; i < NUM_THREADS; i++) {
