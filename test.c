@@ -17,10 +17,53 @@
 	  }
 	}
 
+void process_passwords() {
+    FILE *input_file = fopen("hasla_v2.txt", "r");
+    FILE *output_file = fopen("md5_hasla.txt", "w");
+
+    if (input_file != NULL && output_file != NULL) {
+        char password[100];
+        char md5[33];
+
+        while (fgets(password, sizeof(password), input_file) != NULL) {
+            // Remove the newline character from the password
+            password[strcspn(password, "\n")] = 0;
+			const char *test = password;
+
+            bytes2md5(test, strlen(test), md5);
+            fprintf(output_file,"%s\n",md5);
+        }
+
+        fclose(input_file);
+        fclose(output_file);
+    }
+}
+
+
 int main()
 {
-	const char *test = "Claudia0";
+	FILE *input_file = fopen("hasla_v2.txt", "r");
+    FILE *output_file = fopen("md5_hasla.txt", "w");
+
+    if (input_file != NULL && output_file != NULL) {
+        char password[100];
+        char md5[33];
+
+        while (fscanf(input_file, "%99s", password) == 1) {
+            // Remove the newline character from the password
+            password[strcspn(password, "\n")] = '\0';
+			const char *test = password;
+
+            bytes2md5(test, strlen(test), md5);
+            fprintf(output_file,"%s\n",md5);
+        }
+
+        fclose(input_file);
+        fclose(output_file);
+    }
+	const char *test = "vetoistical";
 	char md5[33]; // 32 characters + null terminator
+	// process_passwords();
 	bytes2md5(test, strlen(test), md5);
 	printf("%s ======================> %s\n", test, md5);
 

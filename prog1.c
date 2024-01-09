@@ -7,10 +7,13 @@
 #include <ctype.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <time.h>
 
 
 
 int NUM_THREADS;
+
+struct timespec start_time;
 
 typedef struct {
    int repetitions;
@@ -73,9 +76,10 @@ void *prod(void *arg)
 		for(int i=thread_number-1;i<password_counter;i=i+repetitions)
 		{
 			t1=passwords[i];
+			// printf("Thread %s: %s\n", t1, t1);
 			for(int j=0; j<words_counter;j++)
 			{
-
+				
 				t2=dictionary[j];
 				length=strlen(t2);
 				char letters[100]; 
@@ -121,6 +125,7 @@ void *prod(void *arg)
 				bytes2md5(number_letter,strlen(number_letter),md5_3);
 				bytes2md5(number_letter_number,strlen(number_letter_number),md5_4);
 
+				// printf("Thread %s: %s\n", number_letter, t2);
 
 				if((strcmp(t1,md5_1))==0 && passwords[i][0]!='#')
 				{
@@ -201,6 +206,21 @@ void *kon(void *t)
             free(decodedpassword);
             decodedpassword=NULL;
         }
+		struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("3_watkow_2_bior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 	}
 	pthread_mutex_unlock(&lock);
 
@@ -211,7 +231,8 @@ void *kon(void *t)
 
 
 int main (int argc, char *argv[]){
-	NUM_THREADS = sysconf(_SC_NPROCESSORS_ONLN)-2;
+	NUM_THREADS = sysconf(_SC_NPROCESSORS_ONLN)-8;
+	clock_gettime(CLOCK_MONOTONIC, &start_time);
 	long t1=1,t2=2,t3=3,t4=4,t5=5;
 	int i,rc;
 	int row=0, type_1_counter=0, type_2_counter=0, type_3_counter=0;
@@ -254,7 +275,7 @@ int main (int argc, char *argv[]){
 			threadData[i].repetitions = type_3_counter;
 		}
 	}
-	FILE *fp1=fopen("passwords_1.txt","r");
+	FILE *fp1=fopen("md5_hasla.txt","r");
 	while(fscanf(fp1,"%s",passwords[row])!=EOF)
 	{
 		passwords[row][32]='\0';

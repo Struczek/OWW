@@ -7,9 +7,12 @@
 #include <ctype.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <time.h>
 
 
 #define NUM_THREADS 5
+
+struct timespec start_time;
 
 char passwords[1000][33];
 long wynik=0;
@@ -42,7 +45,7 @@ void sighup_handle(int sig)
 
 
 int main (int argc, char *argv[]){
-
+	clock_gettime(CLOCK_MONOTONIC, &start_time);
 	int i,rc;
 	int row=0;
 	size_t length;
@@ -51,7 +54,7 @@ int main (int argc, char *argv[]){
 	char *word=NULL;
 	counter=0;
 
-	FILE *fp1=fopen("passwords_1.txt","r");
+	FILE *fp1=fopen("md5_hasla.txt","r");
 	while(fscanf(fp1,"%s",passwords[row])!=EOF)
 	{
 		passwords[row][32]='\0';
@@ -143,6 +146,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=small_letters;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
                     printf("Password %d: %s\n",counter,decodedpassword);
 
 					break;
@@ -152,6 +170,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=small_letters_number;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 
 					break;
@@ -161,6 +194,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=number_small_letter;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -169,6 +217,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=number_small_letter_number;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -213,6 +276,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=letters;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -221,6 +299,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=letters_number;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -229,6 +322,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=number_letter;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -237,6 +345,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=number_letter_number;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -275,6 +398,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=upper_letters;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -283,6 +421,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=upper_letters_number;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -291,6 +444,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=number_upper_letter;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
@@ -299,6 +467,21 @@ int main (int argc, char *argv[]){
 					decodedpassword=number_upper_letter_number;
 					counter++;
 					passwords[i][0]='#';
+					struct timespec end_time;
+        clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+            // Oblicz różnicę między obecnym czasem a czasem rozpoczęcia
+        double elapsed_time = end_time.tv_sec - start_time.tv_sec;
+        elapsed_time += (end_time.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+		FILE *file = fopen("pojedyncze_2_zbior2.txt", "a");
+            if (file != NULL) {
+                // Zapisz hasło do pliku
+                fprintf(file, "%.2f\n", elapsed_time);
+
+                // Zamknij plik
+                fclose(file);
+			}
 					printf("Password %d: %s\n",counter,decodedpassword);
 					break;
 				}
